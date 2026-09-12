@@ -29,7 +29,7 @@ class PosController extends Controller
     /**
      * GET /admin/pos — pantalla de venta
      */
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorize('create', VentaPos::class);
 
@@ -43,11 +43,21 @@ class PosController extends Controller
             ->limit(50)
             ->get(['id', 'folio', 'cliente_nombre']);
 
+        // Llegando desde "+ Vender en el POS" de la ficha de una
+        // reservación (?reservacion=) — la vista bloquea el vínculo en
+        // vez de mostrar el selector libre. findOrFail cuando el id no
+        // corresponde a NINGUNA reservación activa (de otro negocio,
+        // cancelada, o inexistente) — 404 en vez de dejar pasar en
+        // silencio hacia una venta de mostrador no pedida.
+        $reservacionVinculada = $request->filled('reservacion')
+            ? Reservacion::whereIn('estado', ['pendiente', 'confirmada'])->findOrFail($request->query('reservacion'))
+            : null;
+
         // Si venimos de un store() con QR recién generado, la vista
         // muestra el código + arranca el polling automáticamente.
         $ventaQr = session('venta_qr_id') ? VentaPos::with('pagoQr')->find(session('venta_qr_id')) : null;
 
-        return view('admin.pos.index', compact('productos', 'reservacionesActivas', 'ventaQr'));
+        return view('admin.pos.index', compact('productos', 'reservacionesActivas', 'ventaQr', 'reservacionVinculada'));
     }
 
     /**

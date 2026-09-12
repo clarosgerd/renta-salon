@@ -35,6 +35,32 @@ class PosControllerTest extends TestCase
         ]);
     }
 
+    public function test_pos_vinculado_a_reservacion_bloquea_el_selector(): void
+    {
+        $reservacion = Reservacion::factory()->create([
+            'negocio_id' => $this->negocio->id, 'estado' => 'confirmada', 'cliente_nombre' => 'María Fernández',
+        ]);
+
+        $response = $this->actingAs($this->cajero)
+            ->get(route('admin.pos.index', ['reservacion' => $reservacion->id]));
+
+        $response->assertOk();
+        $response->assertSee($reservacion->folio);
+        $response->assertSee('María Fernández');
+        // El selector libre no debe aparecer cuando ya viene vinculada.
+        $response->assertDontSee('Venta de mostrador');
+    }
+
+    public function test_pos_con_id_de_reservacion_cancelada_da_404(): void
+    {
+        $reservacion = Reservacion::factory()->create(['negocio_id' => $this->negocio->id, 'estado' => 'cancelada']);
+
+        $response = $this->actingAs($this->cajero)
+            ->get(route('admin.pos.index', ['reservacion' => $reservacion->id]));
+
+        $response->assertNotFound();
+    }
+
     public function test_cajero_puede_ver_la_pantalla_de_pos(): void
     {
         $response = $this->actingAs($this->cajero)->get(route('admin.pos.index'));

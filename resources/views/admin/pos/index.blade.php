@@ -2,11 +2,29 @@
 
 @section('titulo', 'Punto de Venta')
 
+@php
+    $iconosCategoria = ['bebidas' => '🥤', 'decoracion' => '💐', 'mobiliario' => '🪑', 'alimentos' => '🍽️', 'otro' => '📦'];
+    $etiquetasCategoria = ['bebidas' => 'Bebidas', 'decoracion' => 'Decoración', 'mobiliario' => 'Mobiliario', 'alimentos' => 'Alimentos', 'otro' => 'Otro'];
+    $categoriasPresentes = $productos->pluck('categoria')->unique()->values();
+    $etiquetasTipo = ['boda' => 'Boda', 'xv_anos' => 'XV Años', 'corporativo' => 'Corporativo', 'otro' => 'Evento'];
+@endphp
+
 @section('content')
     <div class="flex items-center justify-between mb-5">
         <div>
             <h1 class="text-lg font-medium text-gray-900">Punto de Venta</h1>
-            <p class="text-sm text-gray-500">Agrega productos al carrito y cobra en efectivo o QR.</p>
+            @if ($reservacionVinculada)
+                <p class="text-sm text-gray-500 mt-0.5">
+                    📅 Vinculado a:
+                    <a href="{{ route('admin.reservaciones.show', $reservacionVinculada) }}" class="text-emerald-700 hover:underline">
+                        {{ $reservacionVinculada->folio }} —
+                        {{ $reservacionVinculada->paquete ? ($etiquetasTipo[$reservacionVinculada->paquete->tipo_evento] ?? 'Evento') : 'Evento' }}
+                        {{ $reservacionVinculada->cliente_nombre }}
+                    </a>
+                </p>
+            @else
+                <p class="text-sm text-gray-500">Agrega productos al carrito y cobra en efectivo o QR.</p>
+            @endif
         </div>
         <a href="{{ route('admin.pos.corte') }}" class="text-sm text-emerald-700 hover:underline">Ver mi corte de caja &rarr;</a>
     </div>
@@ -26,7 +44,7 @@
         </div>
     @endif
 
-    {{-- QR pendiente de un venta recién generada (venido del store()) —
+    {{-- QR pendiente de una venta recién generada (venido del store()) —
          mismo criterio que el placeholder de Reservaciones, pero acá sí se
          muestra la imagen real: PagoQr.payload_respuesta la guarda porque
          el gateway no la persiste en ninguna otra columna (ver
@@ -50,19 +68,30 @@
     @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {{-- Panel izquierdo: buscador + grid de productos --}}
+        {{-- Panel izquierdo: buscador + filtro de categoría + grid de productos --}}
         <div class="lg:col-span-2">
-            <input type="text" id="buscador-productos" placeholder="Buscar producto por nombre o categoría..."
-                   class="w-full rounded-md border-gray-300 text-sm mb-4">
+            <input type="text" id="buscador-productos" placeholder="Buscar producto..."
+                   class="w-full rounded-md border-gray-300 text-sm mb-3">
+
+            <div id="filtro-categorias" class="flex flex-wrap gap-2 mb-4">
+                <button type="button" data-categoria="" class="btn-categoria activa text-sm px-3 py-1.5 rounded-full border">
+                    Todas
+                </button>
+                @foreach ($categoriasPresentes as $categoria)
+                    <button type="button" data-categoria="{{ $categoria }}" class="btn-categoria text-sm px-3 py-1.5 rounded-full border">
+                        {{ $etiquetasCategoria[$categoria] ?? ucfirst($categoria) }}
+                    </button>
+                @endforeach
+            </div>
 
             <div id="grid-productos" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 @forelse ($productos as $producto)
                     <button type="button" class="btn-agregar text-left bg-white border border-gray-200 rounded-lg p-3 hover:border-emerald-400"
-                            data-nombre="{{ strtolower($producto->nombre) }}" data-categoria="{{ strtolower($producto->categoria) }}"
+                            data-nombre="{{ strtolower($producto->nombre) }}" data-categoria="{{ $producto->categoria }}"
                             data-id="{{ $producto->id }}" data-precio="{{ $producto->precio_venta }}">
-                        <p class="text-sm font-medium text-gray-900">{{ $producto->nombre }}</p>
-                        <p class="text-xs text-gray-400 capitalize">{{ $producto->categoria }}</p>
-                        <p class="text-sm text-emerald-700 mt-1">Bs. {{ number_format($producto->precio_venta, 2) }}</p>
+                        <span class="text-2xl">{{ $iconosCategoria[$producto->categoria] ?? '📦' }}</span>
+                        <p class="text-sm font-medium text-gray-900 mt-2">{{ $producto->nombre }}</p>
+                        <p class="text-sm text-gray-500">Bs {{ number_format($producto->precio_venta, 2) }}</p>
                     </button>
                 @empty
                     <p class="col-span-full text-gray-400 text-sm">No hay productos activos. Crea uno en Productos.</p>
@@ -77,41 +106,39 @@
                 <h2 class="text-sm font-medium text-gray-700 mb-3">Carrito</h2>
 
                 <div id="carrito-vacio" class="text-sm text-gray-400 py-6 text-center">Sin productos agregados.</div>
-                <table id="carrito-tabla" class="w-full text-sm hidden">
-                    <tbody id="carrito-filas"></tbody>
-                </table>
+                <div id="carrito-filas" class="hidden space-y-3"></div>
 
                 <div class="border-t border-gray-100 mt-3 pt-3 flex items-center justify-between font-medium">
                     <span>Total</span>
-                    <span id="carrito-total">Bs. 0.00</span>
+                    <span id="carrito-total">Bs 0.00</span>
                 </div>
 
-                <div class="mt-4">
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Vincular a reservación (opcional)</label>
-                    <select name="reservacion_id" class="w-full rounded-md border-gray-300 text-sm">
-                        <option value="">Venta de mostrador</option>
-                        @foreach ($reservacionesActivas as $reservacion)
-                            <option value="{{ $reservacion->id }}">{{ $reservacion->folio }} — {{ $reservacion->cliente_nombre }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="mt-4">
-                    <label class="block text-xs font-medium text-gray-500 mb-2">Método de pago</label>
-                    <div class="flex gap-2">
-                        <label class="flex-1 text-center text-sm py-2 rounded-md border border-gray-300 cursor-pointer has-[:checked]:bg-gray-900 has-[:checked]:text-white">
-                            <input type="radio" name="metodo_pago" value="efectivo" checked class="sr-only"> Efectivo
-                        </label>
-                        <label class="flex-1 text-center text-sm py-2 rounded-md border border-gray-300 cursor-pointer has-[:checked]:bg-gray-900 has-[:checked]:text-white">
-                            <input type="radio" name="metodo_pago" value="qr" class="sr-only"> QR
-                        </label>
+                @if ($reservacionVinculada)
+                    <input type="hidden" name="reservacion_id" value="{{ $reservacionVinculada->id }}">
+                @else
+                    <div class="mt-4">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Vincular a reservación (opcional)</label>
+                        <select name="reservacion_id" class="w-full rounded-md border-gray-300 text-sm">
+                            <option value="">Venta de mostrador</option>
+                            @foreach ($reservacionesActivas as $reservacion)
+                                <option value="{{ $reservacion->id }}">{{ $reservacion->folio }} — {{ $reservacion->cliente_nombre }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                </div>
+                @endif
 
-                <button type="submit" id="btn-cobrar" disabled
-                        class="w-full mt-5 px-4 py-2.5 text-sm rounded-md bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed">
-                    Cobrar
-                </button>
+                <input type="hidden" name="metodo_pago" id="metodo-pago" value="efectivo">
+
+                <div class="grid grid-cols-2 gap-2 mt-5">
+                    <button type="submit" id="btn-efectivo" disabled
+                            class="text-sm border border-gray-300 text-gray-700 px-4 py-2.5 rounded-md hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed">
+                        💵 Efectivo
+                    </button>
+                    <button type="submit" id="btn-qr" disabled
+                            class="text-sm bg-gray-900 text-white px-4 py-2.5 rounded-md hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed">
+                        📲 Cobrar QR
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -121,9 +148,10 @@
             const carrito = {}; // { producto_id: { nombre, precio, cantidad } }
             const filas = document.getElementById('carrito-filas');
             const vacio = document.getElementById('carrito-vacio');
-            const tabla = document.getElementById('carrito-tabla');
             const totalEl = document.getElementById('carrito-total');
-            const btnCobrar = document.getElementById('btn-cobrar');
+            const btnEfectivo = document.getElementById('btn-efectivo');
+            const btnQr = document.getElementById('btn-qr');
+            const metodoPagoInput = document.getElementById('metodo-pago');
             const form = document.getElementById('form-venta');
 
             function render() {
@@ -136,21 +164,28 @@
                     const subtotal = item.precio * item.cantidad;
                     total += subtotal;
 
-                    const tr = document.createElement('tr');
-                    tr.innerHTML =
-                        '<td class="py-1.5 pr-2">' + item.nombre + '</td>' +
-                        '<td class="py-1.5 pr-2 w-16">' +
-                            '<input type="number" min="1" value="' + item.cantidad + '" data-id="' + id + '" class="input-cantidad w-14 rounded-md border-gray-300 text-sm">' +
-                        '</td>' +
-                        '<td class="py-1.5 text-right pr-2">Bs. ' + subtotal.toFixed(2) + '</td>' +
-                        '<td class="py-1.5 text-right"><button type="button" data-id="' + id + '" class="btn-quitar text-red-500">&times;</button></td>';
-                    filas.appendChild(tr);
+                    const fila = document.createElement('div');
+                    fila.className = 'flex items-start justify-between text-sm';
+                    fila.innerHTML =
+                        '<div>' +
+                            '<p class="text-gray-900">' + item.nombre + '</p>' +
+                            '<div class="flex items-center gap-1 text-gray-400">' +
+                                '<span>x</span>' +
+                                '<input type="number" min="1" value="' + item.cantidad + '" data-id="' + id + '" class="input-cantidad w-12 rounded-md border-gray-300 text-xs py-0.5">' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="flex items-center gap-2">' +
+                            '<span class="font-medium text-gray-900">Bs ' + subtotal.toFixed(2) + '</span>' +
+                            '<button type="button" data-id="' + id + '" class="btn-quitar text-red-400">&times;</button>' +
+                        '</div>';
+                    filas.appendChild(fila);
                 });
 
                 vacio.classList.toggle('hidden', ids.length > 0);
-                tabla.classList.toggle('hidden', ids.length === 0);
-                totalEl.textContent = 'Bs. ' + total.toFixed(2);
-                btnCobrar.disabled = ids.length === 0;
+                filas.classList.toggle('hidden', ids.length === 0);
+                totalEl.textContent = 'Bs ' + total.toFixed(2);
+                btnEfectivo.disabled = ids.length === 0;
+                btnQr.disabled = ids.length === 0;
             }
 
             document.getElementById('grid-productos').addEventListener('click', function (e) {
@@ -179,13 +214,28 @@
                 render();
             });
 
-            document.getElementById('buscador-productos').addEventListener('input', function (e) {
-                const texto = e.target.value.toLowerCase();
+            function aplicarFiltros() {
+                const texto = document.getElementById('buscador-productos').value.toLowerCase();
+                const categoriaActiva = document.querySelector('.btn-categoria.activa').dataset.categoria;
                 document.querySelectorAll('.btn-agregar').forEach(function (btn) {
-                    const coincide = btn.dataset.nombre.includes(texto) || btn.dataset.categoria.includes(texto);
-                    btn.style.display = coincide ? '' : 'none';
+                    const coincideTexto = btn.dataset.nombre.includes(texto);
+                    const coincideCategoria = !categoriaActiva || btn.dataset.categoria === categoriaActiva;
+                    btn.style.display = (coincideTexto && coincideCategoria) ? '' : 'none';
                 });
+            }
+
+            document.getElementById('buscador-productos').addEventListener('input', aplicarFiltros);
+
+            document.getElementById('filtro-categorias').addEventListener('click', function (e) {
+                const btn = e.target.closest('.btn-categoria');
+                if (!btn) return;
+                document.querySelectorAll('.btn-categoria').forEach((b) => b.classList.remove('activa'));
+                btn.classList.add('activa');
+                aplicarFiltros();
             });
+
+            btnEfectivo.addEventListener('click', function () { metodoPagoInput.value = 'efectivo'; });
+            btnQr.addEventListener('click', function () { metodoPagoInput.value = 'qr'; });
 
             form.addEventListener('submit', function () {
                 Object.keys(carrito).forEach(function (id, i) {
@@ -222,4 +272,9 @@
             }
         })();
     </script>
+
+    <style>
+        .btn-categoria { border-color: #d1d5db; color: #374151; }
+        .btn-categoria.activa { background-color: #111827; color: #fff; border-color: #111827; }
+    </style>
 @endsection

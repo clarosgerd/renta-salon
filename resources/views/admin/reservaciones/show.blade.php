@@ -2,6 +2,14 @@
 
 @section('titulo', $reservacion->folio)
 
+@php
+    // Mismo mapeo que admin/dashboard.blade.php y portal/paquetes/*.blade.php
+    // — no hay un accessor compartido en el modelo Paquete todavía.
+    $etiquetasTipo = ['boda' => 'Boda', 'xv_anos' => 'XV Años', 'corporativo' => 'Corporativo', 'otro' => 'Evento'];
+    $etiquetasBanco = ['union' => 'Unión', 'bnb' => 'BNB', 'bcp' => 'BCP'];
+    $etiquetasRol = ['admin_negocio' => 'admin', 'admin_salon' => 'admin salón', 'cajero' => 'cajero', 'super_admin_plataforma' => 'super admin'];
+@endphp
+
 @section('content')
 <div x-data="{ tab: 'cuenta', modalAbono: false, metodoPago: 'efectivo' }" class="max-w-5xl">
 
@@ -11,7 +19,10 @@
     <div class="flex items-start justify-between mt-2 mb-5">
         <div>
             <p class="text-xs text-gray-400">Folio {{ $reservacion->folio }}</p>
-            <h1 class="text-lg font-medium text-gray-900 mt-0.5">{{ $reservacion->cliente_nombre }}</h1>
+            <h1 class="text-lg font-medium text-gray-900 mt-0.5">
+                {{ $reservacion->paquete ? ($etiquetasTipo[$reservacion->paquete->tipo_evento] ?? 'Evento') : 'Evento' }}
+                — {{ $reservacion->cliente_nombre }}
+            </h1>
             <p class="text-sm text-gray-500 mt-0.5">
                 {{ $reservacion->salon->nombre }} ·
                 {{ $reservacion->paquete->nombre ?? 'Sin paquete' }} ·
@@ -113,19 +124,7 @@
 
     {{-- Pestaña: Estado de cuenta --}}
     <div x-show="tab === 'cuenta'" class="bg-white border border-gray-200 rounded-lg p-5">
-        <div class="flex items-center justify-between mb-4">
-            <p class="text-sm font-medium text-gray-900">Abonos registrados</p>
-            <div class="flex gap-2">
-                <a href="{{ route('admin.reservaciones.estado-cuenta.pdf', $reservacion) }}"
-                   class="text-sm border border-gray-300 text-gray-600 px-3 py-1.5 rounded-md hover:bg-gray-50">
-                    Descargar PDF
-                </a>
-                <button @click="modalAbono = true"
-                        class="text-sm bg-emerald-600 text-white px-3 py-1.5 rounded-md hover:bg-emerald-700">
-                    + Registrar abono
-                </button>
-            </div>
-        </div>
+        <p class="text-sm font-medium text-gray-900 mb-4">Abonos registrados</p>
 
         <table class="w-full text-sm">
             <thead class="text-gray-500 text-xs uppercase">
@@ -133,30 +132,59 @@
                     <th class="text-left py-2">Fecha</th>
                     <th class="text-left py-2">Método</th>
                     <th class="text-left py-2">Registrado por</th>
-                    <th class="text-left py-2">Estado</th>
                     <th class="text-right py-2">Monto</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 @forelse ($reservacion->pagosAbonos as $abono)
                     <tr>
-                        <td class="py-2.5">{{ $abono->fecha_pago->format('d M Y') }}</td>
+                        <td class="py-2.5">{{ $abono->fecha_pago->format('d M') }}</td>
                         <td class="py-2.5">
-                            {{ $abono->metodo_pago === 'qr' ? 'QR' : 'Efectivo' }}
+                            @if ($abono->metodo_pago === 'qr')
+                                📲 QR — {{ $etiquetasBanco[$abono->pagoQr?->proveedor_qr] ?? 'banco' }}
+                            @else
+                                💵 Efectivo
+                            @endif
+                            @if ($abono->estado_pago !== 'confirmado')
+                                <span class="text-amber-600 text-xs">(pendiente)</span>
+                            @endif
                         </td>
-                        <td class="py-2.5 text-gray-600">{{ $abono->registradoPor->name ?? '—' }}</td>
-                        <td class="py-2.5"><x-badge-estado :estado="$abono->estado_pago === 'confirmado' ? 'confirmada' : $abono->estado_pago" /></td>
+                        <td class="py-2.5 text-gray-600">
+                            {{ $abono->registradoPor->name ?? '—' }}
+                            @if ($abono->registradoPor)
+                                <span class="text-gray-400">({{ $etiquetasRol[$abono->registradoPor->role] ?? $abono->registradoPor->role }})</span>
+                            @endif
+                        </td>
                         <td class="py-2.5 text-right font-medium">Bs {{ number_format($abono->monto, 2) }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="py-6 text-center text-gray-400">Aún no hay abonos registrados.</td></tr>
+                    <tr><td colspan="4" class="py-6 text-center text-gray-400">Aún no hay abonos registrados.</td></tr>
                 @endforelse
             </tbody>
         </table>
+
+        <div class="flex gap-3 mt-4">
+            <a href="{{ route('admin.reservaciones.estado-cuenta.pdf', $reservacion) }}"
+               class="flex-1 text-center text-sm border border-gray-300 text-gray-700 px-4 py-2.5 rounded-md hover:bg-gray-50">
+                &darr; Descargar estado de cuenta
+            </a>
+            <button @click="modalAbono = true"
+                    class="flex-1 text-sm bg-gray-900 text-white px-4 py-2.5 rounded-md hover:bg-gray-800">
+                📷 Registrar abono
+            </button>
+        </div>
     </div>
 
     {{-- Pestaña: Ventas POS --}}
     <div x-show="tab === 'pos'" class="bg-white border border-gray-200 rounded-lg p-5">
+        @can('create', \App\Models\VentaPos::class)
+            <div class="flex justify-end mb-3">
+                <a href="{{ route('admin.pos.index', ['reservacion' => $reservacion->id]) }}"
+                   class="text-sm bg-gray-900 text-white px-4 py-2 rounded-md hover:bg-gray-800">
+                    + Vender en el POS
+                </a>
+            </div>
+        @endcan
         @forelse ($reservacion->ventasPos as $venta)
             <div class="border border-gray-100 rounded-md p-3 mb-3">
                 <div class="flex justify-between text-sm mb-2">

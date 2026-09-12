@@ -109,6 +109,7 @@ class ReservacionController extends Controller
             'salon', 'paquete',
             'pagosAbonos' => fn ($q) => $q->orderByDesc('fecha_pago'),
             'pagosAbonos.registradoPor',
+            'pagosAbonos.pagoQr',
             'ventasPos.detalles.producto',
         ]);
 
