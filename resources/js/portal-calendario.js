@@ -1,4 +1,5 @@
 import { Calendar } from 'fullcalendar/all';
+import classicThemePlugin from 'fullcalendar/themes/classic';
 import 'fullcalendar/skeleton.css';
 import 'fullcalendar/themes/classic/theme.css';
 import 'fullcalendar/themes/classic/palette.css';
@@ -15,6 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!el) return;
 
     const calendar = new Calendar(el, {
+        // Mismo bug real que calendario.js (Fase 3) — los temas de
+        // FullCalendar v7 son plugins, no solo CSS; sin registrar
+        // classicThemePlugin acá el CSS del tema quedaba huérfano.
+        plugins: [classicThemePlugin],
         initialView: 'dayGridMonth',
         headerToolbar: {
             left: 'prev,next today',

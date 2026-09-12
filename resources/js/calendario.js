@@ -1,4 +1,5 @@
 import { Calendar } from 'fullcalendar/all';
+import classicThemePlugin from 'fullcalendar/themes/classic';
 import 'fullcalendar/skeleton.css';
 import 'fullcalendar/themes/classic/theme.css';
 import 'fullcalendar/themes/classic/palette.css';
@@ -39,6 +40,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const calendar = new Calendar(el, {
+        // Bug real (11/09/2026, encontrado a partir de un reporte del
+        // usuario: "no se ve el texto correctamente") — cargar el CSS del
+        // tema "classic" NO alcanza en FullCalendar v7: los temas son
+        // plugins (ver README de fullcalendar/themes/classic), sin
+        // registrarlo el calendario renderiza con sus clases internas
+        // genéricas (hasheadas) en vez de las que el CSS del tema
+        // realmente define — el CSS importado quedaba huérfano, sin
+        // aplicarse a ningún elemento real del DOM.
+        plugins: [classicThemePlugin],
         initialView: 'dayGridMonth',
         headerToolbar: {
             left: 'prev,next today',
