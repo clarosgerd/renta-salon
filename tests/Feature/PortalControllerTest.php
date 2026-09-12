@@ -11,8 +11,9 @@ use Tests\TestCase;
 
 /**
  * Fase 6 (11/09/2026) — ver CL-1/CL-2/§3.14. Portal público, sin auth —
- * mismo host de testing que el resto (dominio_personalizado='rentsalon-pro.test',
- * sembrado por TestCase::setUp()).
+ * mismo host de testing que el resto (dominio_personalizado del Negocio
+ * sembrado por TestCase::setUp(), ver ese docblock para por qué NO es
+ * literalmente 'rentsalon-pro.test' desde que existe el landing).
  */
 class PortalControllerTest extends TestCase
 {

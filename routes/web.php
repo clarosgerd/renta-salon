@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\SalonController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ImpersonacionEntradaController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\Plataforma\ImpersonacionController;
 use App\Http\Controllers\Plataforma\NegocioConfigPagoController;
 use App\Http\Controllers\Plataforma\NegocioController;
@@ -83,6 +84,18 @@ Route::domain('admin.rentsalon-pro.test')->group(function () {
         });
     });
 });
+
+/**
+ * Landing del producto RentSalon Pro (11/09/2026) — dominio PELADO
+ * (rentsalon-pro.test, sin subdominio ni dominio propio de ningún
+ * negocio). Antes de esto, ese host daba 404 real: IdentificarNegocio no
+ * encontraba ningún Negocio con subdominio='rentsalon-pro' (no existe
+ * ninguno con ese nombre) — comportamiento correcto para un tenant
+ * inexistente, pero el dominio raíz merece su propia página de producto,
+ * no un 404. Mismo criterio de orden de registro que el bloque de
+ * Plataforma de arriba: este Route::domain() va ANTES del grupo 'negocio'.
+ */
+Route::domain('rentsalon-pro.test')->get('/', [LandingController::class, 'index'])->name('landing');
 
 /**
  * Activación del ruteo multi-tenant (10/09/2026) — hasta ahora este

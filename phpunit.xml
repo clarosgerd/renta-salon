@@ -20,6 +20,11 @@
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
+        <!-- Landing del producto (11/09/2026) reclamó el host pelado
+             rentsalon-pro.test (ver routes/web.php) — el APP_URL de .env
+             usaba justo ese mismo host como default de testing, chocando
+             con esa ruta nueva. host de testing dedicado, ver TestCase. -->
+        <env name="APP_URL" value="http://negocio-test.rentsalon-pro.test"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
