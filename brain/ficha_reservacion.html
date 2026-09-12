@@ -1,0 +1,51 @@
+<div style="padding:1rem 0">
+<h2 class="sr-only">Wireframe de la ficha de una reservación con datos del cliente, estado de cuenta y ventas asociadas</h2>
+
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
+  <div>
+    <p style="font-size:12px;color:var(--text-muted);margin:0">Folio RSV-0042</p>
+    <p style="font-size:18px;font-weight:500;margin:2px 0 0">Boda — María Fernández</p>
+    <p style="font-size:13px;color:var(--text-secondary);margin:2px 0 0">Salón Jardín · Paquete Boda Premium · 14 sep, 4:00 pm – 11:00 pm</p>
+  </div>
+  <span style="font-size:12px;padding:4px 12px;border-radius:var(--radius);background:var(--bg-success);color:var(--text-success)">Confirmada</span>
+</div>
+
+<div style="display:flex;gap:4px;border-bottom:0.5px solid var(--border);margin-bottom:1rem">
+  <div style="padding:8px 4px;font-size:13px;color:var(--text-secondary)">Cliente</div>
+  <div style="padding:8px 4px;font-size:13px;font-weight:500;border-bottom:2px solid var(--border-accent);color:var(--text-primary)">Estado de cuenta</div>
+  <div style="padding:8px 4px;font-size:13px;color:var(--text-secondary)">Ventas POS</div>
+  <div style="padding:8px 4px;font-size:13px;color:var(--text-secondary)">Historial</div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:1rem">
+  <div style="background:var(--surface-1);border-radius:var(--radius);padding:1rem">
+    <p style="font-size:13px;color:var(--text-secondary);margin:0 0 6px">Total del evento</p>
+    <p style="font-size:20px;font-weight:500;margin:0">Bs 12,500</p>
+  </div>
+  <div style="background:var(--surface-1);border-radius:var(--radius);padding:1rem">
+    <p style="font-size:13px;color:var(--text-secondary);margin:0 0 6px">Abonado</p>
+    <p style="font-size:20px;font-weight:500;margin:0;color:var(--text-success)">Bs 8,000</p>
+  </div>
+  <div style="background:var(--surface-1);border-radius:var(--radius);padding:1rem">
+    <p style="font-size:13px;color:var(--text-secondary);margin:0 0 6px">Saldo pendiente</p>
+    <p style="font-size:20px;font-weight:500;margin:0;color:var(--text-danger)">Bs 4,500</p>
+  </div>
+</div>
+
+<div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <p style="font-size:14px;font-weight:500;margin:0">Abonos registrados</p>
+    <button style="display:flex;align-items:center;gap:6px;font-size:13px"><i class="ti ti-plus" style="font-size:14px"></i>Registrar abono</button>
+  </div>
+  <table style="width:100%;font-size:13px;border-collapse:collapse">
+    <tr style="color:var(--text-secondary)"><td style="padding:6px 0">Fecha</td><td>Método</td><td>Registrado por</td><td style="text-align:right">Monto</td></tr>
+    <tr style="border-top:0.5px solid var(--border)"><td style="padding:8px 0">02 ago</td><td><i class="ti ti-cash" style="font-size:14px;margin-right:4px"></i>Efectivo</td><td>Ana (admin)</td><td style="text-align:right">Bs 5,000</td></tr>
+    <tr style="border-top:0.5px solid var(--border)"><td style="padding:8px 0">20 ago</td><td><i class="ti ti-qrcode" style="font-size:14px;margin-right:4px"></i>QR — BNB</td><td>Ana (admin)</td><td style="text-align:right">Bs 3,000</td></tr>
+  </table>
+</div>
+
+<div style="display:flex;gap:10px">
+  <button style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px"><i class="ti ti-download" style="font-size:16px"></i>Descargar estado de cuenta</button>
+  <button style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--fill-primary);color:var(--on-primary);border:none"><i class="ti ti-cash-banknote" style="font-size:16px"></i>Registrar abono</button>
+</div>
+</div>

@@ -1,0 +1,75 @@
+<div style="padding:1rem 0">
+<h2 class="sr-only">Wireframe del punto de venta con catálogo de productos, carrito y opciones de cobro en efectivo o QR</h2>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+  <p style="font-size:18px;font-weight:500;margin:0">Punto de venta</p>
+  <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary)">
+    <i class="ti ti-calendar-event" style="font-size:16px"></i>Vinculado a: RSV-0042 — Boda María Fernández
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px">
+
+  <div>
+    <input placeholder="Buscar producto..." style="width:100%;margin-bottom:10px" />
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <span style="font-size:12px;padding:4px 12px;border-radius:var(--radius);background:var(--bg-accent-muted);color:var(--text-accent)">Bebidas</span>
+      <span style="font-size:12px;padding:4px 12px;border-radius:var(--radius);border:0.5px solid var(--border)">Decoración</span>
+      <span style="font-size:12px;padding:4px 12px;border-radius:var(--radius);border:0.5px solid var(--border)">Mobiliario</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
+      <div style="border:0.5px solid var(--border);border-radius:var(--radius);padding:10px;text-align:center">
+        <i class="ti ti-glass-full" style="font-size:22px"></i>
+        <p style="margin:6px 0 0;font-size:13px">Copa de vino</p>
+        <p style="margin:2px 0 0;font-size:12px;color:var(--text-secondary)">Bs 15</p>
+      </div>
+      <div style="border:0.5px solid var(--border);border-radius:var(--radius);padding:10px;text-align:center">
+        <i class="ti ti-bottle" style="font-size:22px"></i>
+        <p style="margin:6px 0 0;font-size:13px">Botella agua</p>
+        <p style="margin:2px 0 0;font-size:12px;color:var(--text-secondary)">Bs 8</p>
+      </div>
+      <div style="border:0.5px solid var(--border);border-radius:var(--radius);padding:10px;text-align:center">
+        <i class="ti ti-flower" style="font-size:22px"></i>
+        <p style="margin:6px 0 0;font-size:13px">Centro de mesa</p>
+        <p style="margin:2px 0 0;font-size:12px;color:var(--text-secondary)">Bs 60</p>
+      </div>
+      <div style="border:0.5px solid var(--border);border-radius:var(--radius);padding:10px;text-align:center">
+        <i class="ti ti-chair" style="font-size:22px"></i>
+        <p style="margin:6px 0 0;font-size:13px">Silla extra</p>
+        <p style="margin:2px 0 0;font-size:12px;color:var(--text-secondary)">Bs 20</p>
+      </div>
+      <div style="border:0.5px solid var(--border);border-radius:var(--radius);padding:10px;text-align:center">
+        <i class="ti ti-cup" style="font-size:22px"></i>
+        <p style="margin:6px 0 0;font-size:13px">Café / té</p>
+        <p style="margin:2px 0 0;font-size:12px;color:var(--text-secondary)">Bs 10</p>
+      </div>
+      <div style="border:0.5px solid var(--border);border-radius:var(--radius);padding:10px;text-align:center">
+        <i class="ti ti-bulb" style="font-size:22px"></i>
+        <p style="margin:6px 0 0;font-size:13px">Luces extra</p>
+        <p style="margin:2px 0 0;font-size:12px;color:var(--text-secondary)">Bs 150</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;display:flex;flex-direction:column">
+    <p style="font-size:14px;font-weight:500;margin:0 0 10px">Carrito</p>
+    <div style="flex:1">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border)">
+        <div><p style="margin:0;font-size:13px">Copa de vino</p><p style="margin:0;font-size:12px;color:var(--text-secondary)">x 20</p></div>
+        <p style="margin:0;font-size:13px">Bs 300</p>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border)">
+        <div><p style="margin:0;font-size:13px">Centro de mesa</p><p style="margin:0;font-size:12px;color:var(--text-secondary)">x 5</p></div>
+        <p style="margin:0;font-size:13px">Bs 300</p>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:15px;font-weight:500">
+      <span>Total</span><span>Bs 600</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px"><i class="ti ti-cash" style="font-size:16px"></i>Efectivo</button>
+      <button style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--fill-primary);color:var(--on-primary);border:none"><i class="ti ti-qrcode" style="font-size:16px"></i>Cobrar QR</button>
+    </div>
+  </div>
+</div>
+</div>
